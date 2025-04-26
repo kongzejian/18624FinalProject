@@ -128,7 +128,7 @@ always_ff @(posedge clock or posedge reset) begin
 
 
   //counter
-  always_ff @(posedge clock_1HZ or posedge cnt_clear_current) begin
+  always_ff @(posedge clock_1HZ or posedge reset) begin
     if(reset)
       cnt_current <= 0;
     else if(cnt_clear_current)
@@ -321,7 +321,7 @@ always_ff @(posedge clock or posedge reset) begin
          password_next = 0;
          algorithm_selet_next = 0;
          if(wrong_password_time_current == 1) begin
-            if(cnt_current == 15 && cnt_tick) begin
+            if(cnt_current == 21 && cnt_tick) begin
               next_state = IDLE;
               cnt_clear_next = 1;
               change_next = 1;
@@ -333,7 +333,7 @@ always_ff @(posedge clock or posedge reset) begin
             end
          end
          else if (wrong_password_time_current == 2) begin
-            if(cnt_current == 30 && cnt_tick) begin
+            if(cnt_current == 36 && cnt_tick) begin
               next_state = IDLE;
               cnt_clear_next = 1;
               change_next = 1;
@@ -345,7 +345,7 @@ always_ff @(posedge clock or posedge reset) begin
             end 
          end
          else begin
-            if(cnt_current == 60 && cnt_tick) begin
+            if(cnt_current == 66 && cnt_tick) begin
                  cnt_clear_next = 1;
                  next_state = IDLE;
                  change_next = 1;

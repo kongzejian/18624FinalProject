@@ -7,17 +7,16 @@ module my_chip (
     input logic reset // Important: Reset is ACTIVE-HIGH
 );
     
-    // Basic counter design as an example
-    // TODO: remove the counter design and use this module to insert your own design
-    // DO NOT change the I/O header of this design
 
-    RangeFinder #(.WIDTH(10))
-    i_RangeFinder(.data_in(io_in[9:0]), 
-                  .clock(clock), 
-                  .reset(reset), 
-                  .go(io_in[10]), 
-                  .finish(io_in[11]), 
-                  .range(io_out[9:0]), 
-                  .debug_error(io_out[10]));
+    ChipInterface(
+        .clock(clock),
+        .confirm(io_in[0]),
+        .clear(io_in[1]),
+        .algorithm_select_mode(io_in[2]),
+        .reset(reset),
+        .enter0(io_in[3]), 
+        .enter1(io_in[4]),
+        .led(io_out[5:0])
+  );
 
 endmodule

@@ -8,7 +8,7 @@ module my_chip (
 );
     
 
-    ChipInterface(
+    ChipInterface chipInterface_inst(
         .clock(clock),
         .confirm(io_in[0]),
         .clear(io_in[1]),
@@ -17,6 +17,6 @@ module my_chip (
         .enter0(io_in[3]), 
         .enter1(io_in[4]),
         .led(io_out[5:0])
-  );
+    );
 
 endmodule

@@ -14,37 +14,62 @@ An IO table listing all of your inputs and outputs and their function, like the 
 | io_in[4] | enter 1                                     |
 | io_out[5:0]   | led display                              |
 ## How to Test
-Software Simulation
-Goal:
+Software Simulation  
+
+Goal:  
+
 To verify the correctness of OTP/password handling logic and timing behaviors.
-Scenarios to Cover:
-(1) Timeout
+Scenarios to Cover:  
+
+(1) Timeout  
+
 Test Case 1.1: Wait for more than 60 seconds without input, system should generate a new OTP.
-Validation: Assert that a new OTP is generated and old OTP is invalidated.
-(2) Correct Password Entry
+Validation: Assert that a new OTP is generated and old OTP is invalidated.  
+
+(2) Correct Password Entry  
+
 Test Case 2.1: Input correct password and press Confirm, then system unlocks.
-Validation: Check LED signal.
-(3) Incorrect Password
-Test Case 3.1: Input incorrect password once and press Confirm, system is locked.
-Test Case 3.2: Input incorrect password three times, system is locked for longer time after each try.
-Validation: Check LED signal and ensure new OTP is generated after returning to IDLE.
-(4) Clear Input
-Test Case 4.1: Input some digits and press Clear, password buffer should be empty.
-Validation: Check password buffer.
-(5) Algorithm Selection
+Validation: Check LED signal.  
+
+(3) Incorrect Password  
+
+Test Case 3.1: Input incorrect password once and press Confirm, system is locked.  
+
+Test Case 3.2: Input incorrect password three times, system is locked for longer time after each try.  
+
+Validation: Check LED signal and ensure new OTP is generated after returning to IDLE.  
+
+(4) Clear Input  
+
+Test Case 4.1: Input some digits and press Clear, password buffer should be empty.  
+
+Validation: Check password buffer.  
+
+(5) Algorithm Selection  
+
 Test Case 5.1: Enter correct password to enter algorithm selection mode. Enter the binary code to choose a different algorithm. Then repeat tests listed above.
-FPGA-based Hardware Testing
-Goal:
+FPGA-based Hardware Testing  
+
+Goal:  
+
 Validate the design on real hardware, including button inputs, debounce (joggle), and long presses.
-Scenarios to Cover:
-(1) Button Debounce
+Scenarios to Cover:  
+
+(1) Button Debounce  
+
 Simulate noisy input: rapidly toggle a button pin within short time (simulate bounce).
-Validation: Ensure system only registers one press.
-(2) Long Button Press
-Hold down a button for more than 1 second.
-Validation: Should either be interpreted as a single input, or trigger alternate behavior if specified.
-(3) All 5 Functional Scenarios from Software Simulation
-(4) Stress Test
+Validation: Ensure system only registers one press.  
+
+(2) Long Button Press  
+
+Hold down a button for more than 1 second.   
+
+Validation: Should either be interpreted as a single input, or trigger alternate behavior if specified.  
+
+(3) All 5 Functional Scenarios from Software Simulation  
+
+(4) Stress Test  
+
 Repeated random input and clear presses.
 Rapid confirm and cancel toggles.
 

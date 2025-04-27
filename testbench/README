@@ -1,0 +1,1 @@
+In the actual chip, the clock frequency is 25 MHz. However, for easier software simulation and waveform debugging, I created a 6 Hz version. In the OTP algorithm, the first mode sets the password equal to the LED value, and the second mode sets the password as twice the LED value. This makes it easier to perform calculations during simulation.

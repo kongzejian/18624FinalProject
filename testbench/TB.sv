@@ -8,7 +8,6 @@ module Design_tb;
     logic enter0, enter1;
     logic algorithm_select_mode;
     logic [5:0] led;
-    parameter C = 25000000;
 
     // Instantiate the Design module
     ChipInterface uut (
@@ -255,53 +254,54 @@ endtask
         enter1 = 0;
         algorithm_select_mode = 0;
         
+        // Apply reset
+        #20 reset = 0;
+
         
         //test timeout
         reset = 1;
         #20 reset = 0;
-        wait_cycles(60*C); //60
-        wait_cycles(60*C); //60
-        wait_cycles(60*C); //60
+        wait_cycles(360); //60*6
+
 
         //test correct password
         reset = 1;
         #20 reset = 0;
         enter_button("101101f"); //select 
-        wait_cycles(7*C); //pass
+        wait_cycles(36); //pass: 6 cycles 6*6
+
         //test wrong password
         reset = 1;
         #20 reset = 0;
         enter_button("111111f");
-        wait_cycles(6*C); //fail
-        wait_cycles(15*C); //lock
-        wait_cycles(C);// idle
+        wait_cycles(36); //fail
+        wait_cycles(90); //lock
+        wait_cycles(6);// idle
         enter_button("111111f");
-        wait_cycles(6*C); //fail
-        wait_cycles(30*C); //lock
-        wait_cycles(C);// idle
+        wait_cycles(36); //fail
+        wait_cycles(180); //lock
+        wait_cycles(6);// idle
         enter_button("111111f");
-        wait_cycles(6*C); //fail
-        wait_cycles(60*C); //lock
-        wait_cycles(C);// idle
-        reset = 1;
-        #20 reset = 0;
+        wait_cycles(36); //fail
+        wait_cycles(360); //lock
+        wait_cycles(6);// idle
+
         //clear password
         enter_button("10c101101f"); //select 
-        wait_cycles(6*C); //pass: 6 cycles 
-        reset = 1;
-        #20 reset = 0;
+        wait_cycles(36); //pass: 6 cycles 6*6
+
         //test mode select
-        wait_cycles(C);
+        wait_cycles(4);
         enter_button("s101101f"); //select 
-        wait_cycles(6*C); //pass: 6 cycles 
+        wait_cycles(36); //pass: 6 cycles 6*6
         enter_button("001f"); //choose mode 2
-        wait_cycles(C);//mode_select-> idle
+        wait_cycles(6);//mode_select-> idle
         enter_button("110100f");
-        wait_cycles(6*C); //pass: 6 cycles 
+        wait_cycles(36); //pass: 5 cycles 6*5
         enter_button("s1101010f"); //select 
-        wait_cycles(6*C);//pass: 6 cycles
+        wait_cycles(36);//pass: 5 cycles 6*5
         enter_button("000f"); //choose mode 2
-        wait_cycles(C);
+        wait_cycles(6);
         enter_button("101011f"); //select 
 
         // End simulation

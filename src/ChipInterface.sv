@@ -393,10 +393,10 @@ module password_generator(
       end
       else begin
         case(algorithm_select)
-            //3'd0: password <= OTP * 2 + 1;                    
-            //3'd1: password <= (OTP << 2) ^ 12'hA3; 
-            3'd0: password <= OTP;                    
-            3'd1: password <= OTP * 2;           
+            3'd0: password <= OTP * 2 + 1;                    
+            3'd1: password <= (OTP << 2) ^ 12'hA3; 
+            // 3'd0: password <= OTP;                    
+            // 3'd1: password <= OTP * 2;           
             3'd2: password <= (OTP * 3) + (OTP >> 1);         
             3'd3: password <= ~(OTP * 5) & 12'hFFF;           
             3'd4: password <= (OTP * OTP) % 4096;             

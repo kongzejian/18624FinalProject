@@ -1,0 +1,29 @@
+Project Title: Configurable Electronic Password Lock
+This project involves designing a configurable electronic password 
+lock that uses a state machine to control password entry, verification, 
+and locking mechanisms. The lock supports password modification 
+and ensures security by locking after a specified number of incorrect attempts.
+
+Technial:
+The password lock system uses a 6-bit dip switch for password input, with a mode switch for toggling between "set" and "unlock" modes. 
+Users can verify or modify passwords using confirmation and reset buttons. A state machine manages the lock's operational states, 
+including input validation, password modification, and lock states.
+Core components include:
+(1) State Machine: Manages system states (idle, unlock, modify, locked, error).
+(2) Password Register: Stores the current password and updates during modification.
+(3) Comparator: Validates the input password against the stored password.
+(4) Counter: Tracks incorrect password attempts and triggers a lock state when limits are exceeded.
+
+I/Os:
+Inputs:
+1. 6-bit Dip Switch: Input for password
+2. Mode Switch (1-bit): Toggles between "Set Password" and "Unlock" modes.
+3. Confirm Button (1-bit): Confirms the input password or new password during modification.
+4. Clear Button (1-bit): Resets input or clears password attempt.
+Outputs:
+Unlock LED: Indicates successful unlock.
+Error LED: Indicates incorrect password attempt.
+Lock LED: Indicates the system is locked due to exceeding maximum attempts.
+
+Hardware Peripherals:
+Three LEDS

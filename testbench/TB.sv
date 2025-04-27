@@ -287,10 +287,14 @@ endtask
         wait_cycles(6);// idle
 
         //clear password
+        reset = 1;
+        #20 reset = 0;
         enter_button("10c101101f"); //select 
         wait_cycles(36); //pass: 6 cycles 6*6
 
         //test mode select
+        reset = 1;
+        #20 reset = 0;
         wait_cycles(4);
         enter_button("s101101f"); //select 
         wait_cycles(36); //pass: 6 cycles 6*6

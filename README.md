@@ -23,12 +23,14 @@ Scenarios to Cover:
 
 (1) Timeout  
 
-Test Case 1.1: Wait for more than 60 seconds without input, system should generate a new OTP.
+Test Case 1.1: Wait for more than 60 seconds without input, system should generate a new OTP.  
+
 Validation: Assert that a new OTP is generated and old OTP is invalidated.  
 
 (2) Correct Password Entry  
 
-Test Case 2.1: Input correct password and press Confirm, then system unlocks.
+Test Case 2.1: Input correct password and press Confirm, then system unlocks.  
+
 Validation: Check LED signal.  
 
 (3) Incorrect Password  
@@ -47,7 +49,8 @@ Validation: Check password buffer.
 
 (5) Algorithm Selection  
 
-Test Case 5.1: Enter correct password to enter algorithm selection mode. Enter the binary code to choose a different algorithm. Then repeat tests listed above.
+Test Case 5.1: Enter correct password to enter algorithm selection mode. Enter the binary code to choose a different algorithm. Then repeat tests listed above.  
+
 FPGA-based Hardware Testing  
 
 Goal:  
@@ -57,7 +60,8 @@ Scenarios to Cover:
 
 (1) Button Debounce  
 
-Simulate noisy input: rapidly toggle a button pin within short time (simulate bounce).
+Simulate noisy input: rapidly toggle a button pin within short time (simulate bounce).  
+
 Validation: Ensure system only registers one press.  
 
 (2) Long Button Press  

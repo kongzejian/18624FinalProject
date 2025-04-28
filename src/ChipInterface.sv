@@ -56,11 +56,11 @@ module ChipInterface #(parameter FRE = 25000000) (
     .sync_button(algorithm_select_mode_sync)
   );
 
-  button_latch confirm_valid(.clock(clock), .reset(reset), .btn(confirm_sync), .valid_press(confirm_valid_press));
-  button_latch clear_valid(.clock(clock), .reset(reset), .btn(clear_sync), .valid_press(clear_valid_press));
-  button_latch enter0_valid(.clock(clock), .reset(reset), .btn(enter0_sync), .valid_press(enter0_valid_press));
-  button_latch enter1_valid(.clock(clock), .reset(reset), .btn(enter1_sync), .valid_press(enter1_valid_press));
-  button_latch algorithm_select_mode_valid(.clock(clock), .reset(reset), .btn(algorithm_select_mode_sync), .valid_press(algorithm_select_mode_valid_press));
+  button_handler confirm_valid(.clock(clock), .reset(reset), .btn(confirm_sync), .valid_press(confirm_valid_press));
+  button_handler clear_valid(.clock(clock), .reset(reset), .btn(clear_sync), .valid_press(clear_valid_press));
+  button_handler enter0_valid(.clock(clock), .reset(reset), .btn(enter0_sync), .valid_press(enter0_valid_press));
+  button_handler enter1_valid(.clock(clock), .reset(reset), .btn(enter1_sync), .valid_press(enter1_valid_press));
+  button_handler algorithm_select_mode_valid(.clock(clock), .reset(reset), .btn(algorithm_select_mode_sync), .valid_press(algorithm_select_mode_valid_press));
   OTP_generator inst_OTP_generator(.clock(clock), .reset(reset), .change(change_current), .OTP(OTP));
 
   typedef enum logic [2:0] {IDLE = 3'b000, 

@@ -1,4 +1,4 @@
-module ChipInterface(
+module ChipInterface #(parameter FRE = 25000000) (
     input logic clock,
     input logic confirm,
     input logic clear,
@@ -14,13 +14,8 @@ module ChipInterface(
   logic [11:0] password_ref;
   logic [5:0] OTP;
   logic change_current, change_next;
-  logic clock_1HZ; //1HZ
-  logic [9:0] cnt_current, cnt_next;
+  logic [31:0] cnt_current, cnt_next;
   logic [1:0] wrong_password_time_current, wrong_password_time_next;
-  logic [24:0] counter;
-  logic cnt_tick;
-  logic [9:0] cnt_prev;
-  logic cnt_clear_current, cnt_clear_next;
   logic algorithm_selet_current, algorithm_selet_next;
   logic [2:0] algorithm_mode_current, algorithm_mode_next;
 
@@ -61,11 +56,11 @@ module ChipInterface(
     .sync_button(algorithm_select_mode_sync)
   );
 
-  button_handler confirm_valid(.clock(clock), .reset(reset), .btn(confirm_sync), .valid_press(confirm_valid_press));
-  button_handler clear_valid(.clock(clock), .reset(reset), .btn(clear_sync), .valid_press(clear_valid_press));
-  button_handler enter0_valid(.clock(clock), .reset(reset), .btn(enter0_sync), .valid_press(enter0_valid_press));
-  button_handler enter1_valid(.clock(clock), .reset(reset), .btn(enter1_sync), .valid_press(enter1_valid_press));
-  button_handler algorithm_select_mode_valid(.clock(clock), .reset(reset), .btn(algorithm_select_mode_sync), .valid_press(algorithm_select_mode_valid_press));
+  button_latch confirm_valid(.clock(clock), .reset(reset), .btn(confirm_sync), .valid_press(confirm_valid_press));
+  button_latch clear_valid(.clock(clock), .reset(reset), .btn(clear_sync), .valid_press(clear_valid_press));
+  button_latch enter0_valid(.clock(clock), .reset(reset), .btn(enter0_sync), .valid_press(enter0_valid_press));
+  button_latch enter1_valid(.clock(clock), .reset(reset), .btn(enter1_sync), .valid_press(enter1_valid_press));
+  button_latch algorithm_select_mode_valid(.clock(clock), .reset(reset), .btn(algorithm_select_mode_sync), .valid_press(algorithm_select_mode_valid_press));
   OTP_generator inst_OTP_generator(.clock(clock), .reset(reset), .change(change_current), .OTP(OTP));
 
   typedef enum logic [2:0] {IDLE = 3'b000, 
@@ -79,15 +74,6 @@ module ChipInterface(
 
   state_t current_state, next_state;
 
-  always_ff @(posedge clock or posedge reset) begin
-      if (reset) begin
-          cnt_prev <= 0;
-      end else begin
-          cnt_prev <= cnt_current;
-      end
-  end
-
-  assign cnt_tick = (cnt_current != cnt_prev); 
 
   always_ff @(posedge clock or posedge reset) begin 
     if(reset) begin
@@ -95,59 +81,31 @@ module ChipInterface(
       password_current <= 0;
       change_current <= 0;
       wrong_password_time_current <= 0;
-      cnt_clear_current <= 0;
       algorithm_selet_current <= 0;
       algorithm_mode_current <= 0;
+      cnt_current <= 0;
     end
     else begin
       current_state <= next_state;
       password_current <= password_next;
       change_current <= change_next;
       wrong_password_time_current <= wrong_password_time_next;
-      cnt_clear_current <= cnt_clear_next;
       algorithm_selet_current <= algorithm_selet_next;
       algorithm_mode_current <= algorithm_mode_next;
-    end
-  end
-
-
-always_ff @(posedge clock or posedge reset) begin
-    if (reset) begin
-        clock_1HZ <= 0;
-        counter <= 0;
-    end 
-    else if (counter == 12_499_999) begin
-        counter <= 0;
-        clock_1HZ <= ~clock_1HZ; 
-    end 
-    else begin
-        counter <= counter + 1;
-        clock_1HZ <= clock_1HZ;
-    end
-  end
-
-
-  //counter
-  always_ff @(posedge clock_1HZ or posedge reset) begin
-    if(reset)
-      cnt_current <= 0;
-    else if(cnt_clear_current)
-      cnt_current <= 0;
-    else 
       cnt_current <= cnt_next;
+    end
   end
 
-  
+
   always_comb begin
     case(current_state)
       IDLE: begin
         wrong_password_time_next = wrong_password_time_current;
         algorithm_mode_next = algorithm_mode_current;
-        if(cnt_current == 60 && cnt_tick) begin
+        if(cnt_current == 60 * FRE -1) begin
           next_state = TIMEOUT;
           password_next = 0;
           change_next = 1;
-          cnt_clear_next = 1;
           algorithm_selet_next = 0;
           cnt_next = 0;
         end
@@ -155,24 +113,21 @@ always_ff @(posedge clock or posedge reset) begin
             algorithm_selet_next = 1;
             next_state = INPUT;
             change_next = 0;
-            cnt_clear_next = 0;
             password_next = 0;
             cnt_next = 0;
         end
         else if(enter0_valid_press)begin
-           cnt_next = cnt_current + 1;
+           cnt_next = 0;
            next_state = INPUT;
            password_next = {password_current[10:0],1'b0};
            change_next = 0;
-           cnt_clear_next = 0;
            algorithm_selet_next = 0;
         end 
         else if(enter1_valid_press)begin
-           cnt_next = cnt_current + 1;
+           cnt_next = 0;
            next_state = INPUT;
            password_next = {password_current[10:0],1'b1};
            change_next = 0;
-           cnt_clear_next = 0;
            algorithm_selet_next = 0;
         end 
         else begin
@@ -180,19 +135,15 @@ always_ff @(posedge clock or posedge reset) begin
           next_state = IDLE;
           password_next = 0;
           change_next = 0;
-          cnt_clear_next = 0;
           algorithm_selet_next = 0;
         end
       end
       TIMEOUT: begin
-        if(cnt_tick) 
         next_state = IDLE;
-        else next_state = TIMEOUT;
         wrong_password_time_next = wrong_password_time_current;
-        cnt_next = 0;
+        cnt_next = cnt_current + 1;
         password_next = 0;
         change_next = 0;
-        cnt_clear_next = 0;
         algorithm_selet_next = 0;
         algorithm_mode_next = algorithm_mode_current;
       end
@@ -200,7 +151,6 @@ always_ff @(posedge clock or posedge reset) begin
         wrong_password_time_next = wrong_password_time_current;
         cnt_next = 0;
         change_next = 0;
-        cnt_clear_next = 0;
         algorithm_selet_next = algorithm_selet_current;
         algorithm_mode_next = algorithm_mode_current;
         if(confirm_valid_press) begin
@@ -225,7 +175,6 @@ always_ff @(posedge clock or posedge reset) begin
         end
       end
       VERIFY: begin
-        cnt_clear_next = 0;
         cnt_next = 0;
         password_next = 0;
         change_next = 0;
@@ -245,7 +194,7 @@ always_ff @(posedge clock or posedge reset) begin
         password_next = 0;
         algorithm_selet_next = algorithm_selet_current;
         algorithm_mode_next = algorithm_mode_current;
-        if(cnt_current == 6 && cnt_tick) begin
+        if(cnt_current == 6 * FRE) begin
           if(algorithm_selet_current == 1) begin
               next_state = ALGO_SELECT;
               change_next = 0;
@@ -255,19 +204,16 @@ always_ff @(posedge clock or posedge reset) begin
               change_next = 1;
           end
           cnt_next = 0;
-          cnt_clear_next = 1;
         end 
         else begin
           cnt_next = cnt_current + 1;
           next_state = PASS;
           change_next = 0;
-          cnt_clear_next = 0;
         end
       end
       ALGO_SELECT : begin
         password_next = 0;
         cnt_next = 0;
-        cnt_clear_next = 0;
         algorithm_selet_next = 0;
         wrong_password_time_next = wrong_password_time_current;
         if(confirm_valid_press) begin
@@ -301,17 +247,15 @@ always_ff @(posedge clock or posedge reset) begin
         wrong_password_time_next = wrong_password_time_current;
         password_next = 0;
         algorithm_selet_next = 0;
-        if(cnt_current == 6 && cnt_tick) begin
+        if(cnt_current == 6 * FRE) begin
           change_next = 1;
           cnt_next = 0;
           next_state = LOCK;
-          cnt_clear_next = 1;
         end 
         else begin
           cnt_next = cnt_current + 1;
           next_state = FAIL;
           change_next = 0;
-          cnt_clear_next = 0;
         end
       end
       LOCK: begin
@@ -321,38 +265,32 @@ always_ff @(posedge clock or posedge reset) begin
          password_next = 0;
          algorithm_selet_next = 0;
          if(wrong_password_time_current == 1) begin
-            if(cnt_current == 21 && cnt_tick) begin
+            if(cnt_current == 15 * FRE) begin
               next_state = IDLE;
-              cnt_clear_next = 1;
               change_next = 1;
             end
             else begin
               next_state = LOCK;
-              cnt_clear_next = 0;
               change_next = 0;
             end
          end
          else if (wrong_password_time_current == 2) begin
-            if(cnt_current == 36 && cnt_tick) begin
+            if(cnt_current == 30 * FRE) begin
               next_state = IDLE;
-              cnt_clear_next = 1;
               change_next = 1;
             end
             else begin
-               cnt_clear_next = 0;
                next_state = LOCK;
               change_next = 0;
             end 
          end
          else begin
-            if(cnt_current == 66 && cnt_tick) begin
-                 cnt_clear_next = 1;
+            if(cnt_current == 60 * FRE) begin
                  next_state = IDLE;
                  change_next = 1;
             end
             else begin
               next_state = LOCK;
-              cnt_clear_next = 0;
               change_next = 0;
             end
          end
@@ -360,18 +298,20 @@ always_ff @(posedge clock or posedge reset) begin
     endcase
   end
 
-
-
   //LED
-  always_ff @(posedge clock_1HZ or posedge reset) begin
+  always_ff @(posedge clock or posedge reset) begin
     if(reset) led <= 6'b0;
     else if(current_state == PASS) led <= 6'b111111;
     else if(current_state == ALGO_SELECT) begin
         led = {4'b0, algorithm_mode_current};
     end
     else if(current_state == FAIL) begin
-        if(cnt_current == 1 || cnt_current == 3 || cnt_current == 5) led <= 6'b0;
-        else led <= 6'b111111;
+    if ((cnt_current >= FRE*1 && cnt_current < FRE*2) || 
+        (cnt_current >= FRE*3 && cnt_current < FRE*4) || 
+        (cnt_current >= FRE*5 && cnt_current < FRE*6))
+        led <= 6'b0; 
+    else
+        led <= 6'b111111; 
     end
     else if(current_state == LOCK) led <= 6'b101010;
     else led <= OTP;

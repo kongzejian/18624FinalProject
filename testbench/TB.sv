@@ -10,7 +10,7 @@ module Design_tb;
     logic [5:0] led;
 
     // Instantiate the Design module
-    ChipInterface uut (
+    ChipInterface #(.FRE(6)) uut (
         .clock(clock),
         .confirm(confirm),
         .clear(clear),

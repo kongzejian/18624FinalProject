@@ -8,7 +8,7 @@ module my_chip (
 );
     
 
-    ChipInterface chipInterface_inst(
+    ChipInterface #(.FRE(25000000)) chipInterface_inst(
         .clock(clock),
         .confirm(io_in[0]),
         .clear(io_in[1]),
